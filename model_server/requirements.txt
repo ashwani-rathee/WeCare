@@ -1,0 +1,10 @@
+flask
+gunicorn
+numpy
+Pillow
+pandas
+tensorflow
+matplotlib
+chardet
+scipy
+scikit-image
