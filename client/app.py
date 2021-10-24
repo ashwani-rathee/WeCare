@@ -23,12 +23,7 @@ from skimage.segmentation import felzenszwalb, slic, quickshift, watershed, find
 from skimage.transform import resize
 img = data.chelsea()  # or any image represented as a numpy array
 mask = np.zeros((512, 512))
-with open("img.png", "rb") as image_file:
-        imgcontents = "data:image/png;base64, " + \
-            str(base64.b64encode(image_file.read()))[2:-1]
-with open("mask.png", "rb") as image_file:
-        maskcontents = "data:image/png;base64, " + \
-            str(base64.b64encode(image_file.read()))[2:-1]
+
 app = dash.Dash(__name__, external_stylesheets=[
                 'https://codepen.io/chriddyp/pen/bWLwgP.css', dbc.themes.BOOTSTRAP, "./test.css"])
 server = app.server
@@ -36,6 +31,24 @@ server = app.server
 table_header = [
     html.Thead(html.Tr([html.Th(html.H3("Steps in Self Examination"))]))
 ]
+
+DEFAULT_STROKE_WIDTH = 3  # gives line width of 2^3 = 8
+
+DEFAULT_IMAGE_PATH = "img.png"
+
+# the number of different classes for labels
+NUM_LABEL_CLASSES = 5
+DEFAULT_LABEL_CLASS = 0
+class_label_colormap = ["#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2"]
+class_labels = list(range(NUM_LABEL_CLASSES))
+
+def class_to_color(n):
+    return class_label_colormap[n]
+
+
+def color_to_class(c):
+    return class_label_colormap.index(c)
+
 
 row1 = html.Tr([
     html.Td(html.H3('''
@@ -130,9 +143,9 @@ app.layout = html.Div([
                 html.Div([
                     dbc.Col([
                         dbc.Row([html.Div([html.P("Image"),
-                                           html.Hr(), html.Div(html.Img(src=imgcontents),id='output-image-upload')], className="graphout")]),
+                                           html.Hr(), html.Div(id='output-image-upload')], className="graphout")]),
                         dbc.Row([html.Div([html.P("Mask"),
-                                           html.Hr(), html.Div(html.Img(src=maskcontents),id='mask-image-upload')], className="graphout")])
+                                           html.Hr(), html.Div(id='mask-image-upload')], className="graphout")])
                     ])
                 ])
             ),
@@ -147,6 +160,73 @@ app.layout = html.Div([
                     dbc.Col(html.Div([html.P("Classification Model Results"),
                                       html.Hr(),
                                       html.Div(id='button-clicks', className="classifys",style={'whiteSpace': 'pre-line'}),
+                                      html.Hr(),
+                                      html.P("Utilities Tools"),
+                                      html.Hr(),
+                                      html.Div(id='button-clicks1', className="classifys",style={'whiteSpace': 'pre-line'}),
+                                          dbc.Card(
+        id="sidebar-card",
+        children=[
+            dbc.CardHeader("Tools"),
+            dbc.CardBody(
+                [
+                    html.H6("Label class", className="card-title"),
+                    # Label class chosen with buttons
+                    html.Div(
+                        id="label-class-buttons",
+                        children=[
+                            dbc.Button(
+                                "%2d" % (n,),
+                                id={"type": "label-class-button", "index": n},
+                                style={"background-color": class_to_color(c)},
+                            )
+                            for n, c in enumerate(class_labels)
+                        ],
+                    ),
+                    html.Hr(),
+                    dbc.Form(
+                        [
+                            dbc.FormGroup(
+                                [
+                                    dbc.Label(
+                                        "Width of annotation paintbrush",
+                                        html_for="stroke-width",
+                                    ),
+                                    # Slider for specifying stroke width
+                                    dcc.Slider(
+                                        id="stroke-width",
+                                        min=0,
+                                        max=6,
+                                        step=0.1,
+                                        value=DEFAULT_STROKE_WIDTH,
+                                    ),
+                                ]
+                            ),
+                            dbc.FormGroup(
+                                [
+                                    html.H6(
+                                        id="stroke-width-display",
+                                        className="card-title",
+                                    ),
+                                    dbc.Label(
+                                        "Blurring parameter",
+                                        html_for="sigma-range-slider",
+                                    ),
+                                    dcc.RangeSlider(
+                                        id="sigma-range-slider",
+                                        min=0.01,
+                                        max=20,
+                                        step=0.01,
+                                        value=[0.5, 16],
+                                    ),
+                                ]
+                            ),
+                        ]
+                    ),
+                ]
+            ),
+        ],
+    ),
                     ], className="graphout2")),
                 ])
             )
@@ -224,6 +304,9 @@ def func(n_clicks):
         )
 
 
+
+
+
 @app.callback(Output("example-save-index", "data"), Input("example-save", "n_clicks"))
 def func(n_clicks):
     if n_clicks is None:
@@ -248,7 +331,7 @@ def parse_contents(contents, filename, date):
     resp = requests.post("https://breast-cancer-api.as.r.appspot.com/predict",
                          files={"file": open('img.png', 'rb')})
     json_load = resp.json()
-    mask = ~np.asarray(json_load["mask"])
+    mask = ~np.asarray(json_load["mask"]).astype(np.bool)
     sio.imsave('mask.png', mask)
     print("mask updated")
     return html.Div([
@@ -262,10 +345,6 @@ counter = 0
               State('upload-image', 'filename'),
               State('upload-image', 'last_modified'))
 def update_output(list_of_contents, list_of_names, list_of_dates):
-    global counter
-    if counter == 0:
-        counter = counter + 1
-        return html.Div([html.Img(src=imgcontents),])
     if list_of_contents is not None:
         children = [
             parse_contents(list_of_contents, list_of_names, list_of_dates)]
@@ -275,9 +354,6 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
 @app.callback(Output('mask-image-upload', 'children'),
               [Input('button-mask-show', 'n_clicks')], State('upload-image', 'contents'))
 def show_mask(n_clicks, contents):
-    global counter
-    if counter == 0:
-        return html.Div([html.Img(src=maskcontents),])
     if n_clicks:
         filename = "mask.png"
         with open("mask.png", "rb") as image_file:
@@ -320,16 +396,35 @@ def update_output1(n_clicks, list_of_contents):
             dragmode='drawrect',  # define dragmode
             newshape=dict(line_color='cyan'))
         fig.update_layout(
-            margin=dict(l=20, r=20, t=20, b=20), width=900, height=500)
+            margin=dict(l=20, r=20, t=20, b=20), width=700, height=500)
         return [dcc.Graph(figure=fig, config={'modeBarButtonsToAdd': ['drawline',
                                                                       'drawopenpath',
                                                                       'drawclosedpath',
                                                                       'drawcircle',
                                                                       'drawrect',
                                                                       'eraseshape'
-                                                                      ]})]
+                                                                      ]},id="graphmain")]
     return ''
 
 
+
+@app.callback( dash.dependencies.Output('button-clicks1', 'children'),[      Input(
+            {"type": "label-class-button", "index": dash.dependencies.ALL},
+            "n_clicks_timestamp",
+        ), Input("stroke-width", "value")])
+def annotation_update(any_label_class_button_value, stroke_width):
+        print("Hi")   
+        if any_label_class_button_value is None:
+            label_class_value = DEFAULT_LABEL_CLASS
+        else:
+            label_class_value = max(
+            enumerate(any_label_class_button_value),
+            key=lambda t: 0 if t[1] is None else t[1],
+        )[0]
+        print(label_class_value)
+        print(stroke_width)
+
+        return " Stroke Width: {} \n Stroke_Color:{}".format(stroke_width, class_to_color(label_class_value)) 
+        
 if __name__ == '__main__':
     app.run_server(debug=True)
