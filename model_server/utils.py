@@ -4,14 +4,22 @@ import numpy as np
 import pandas as pd
 import re
 import tensorflow as tf
-
+import sys
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.models import Sequential ###
+from tensorflow.keras.layers import Conv2D    ####
+from tensorflow.keras.layers import MaxPooling2D  ###
+from tensorflow.keras.layers import Dense   ###
+from tensorflow.keras.layers import Flatten ###
+from tensorflow.keras.optimizers import SGD
+from tensorflow.keras.optimizers import Adam ####
 # Model definition
 
 # this block essentially performs 2 convolution
 
 def Conv2dBlock(inputTensor, numFilters, kernelSize = 3, doBatchNorm = True):
     #first Conv
-    x = tf.keras.layers.Conv2D(filters = numFilters, kernel_size = (kernelSize, kernelSize),
+    x = Conv2D(filters = numFilters, kernel_size = (kernelSize, kernelSize),
                               kernel_initializer = 'he_normal', padding = 'same') (inputTensor)
     
     if doBatchNorm:
@@ -20,7 +28,7 @@ def Conv2dBlock(inputTensor, numFilters, kernelSize = 3, doBatchNorm = True):
     x =tf.keras.layers.Activation('relu')(x)
     
     #Second Conv
-    x = tf.keras.layers.Conv2D(filters = numFilters, kernel_size = (kernelSize, kernelSize),
+    x = Conv2D(filters = numFilters, kernel_size = (kernelSize, kernelSize),
                               kernel_initializer = 'he_normal', padding = 'same') (x)
     if doBatchNorm:
         x = tf.keras.layers.BatchNormalization()(x)
@@ -74,4 +82,34 @@ def UNet(inputImage, numFilters = 16, dropouts = 0.1, doBatchNorm = True):
     
     output = tf.keras.layers.Conv2D(1, (1, 1), activation = 'sigmoid')(c9)
     model = tf.keras.Model(inputs = [inputImage], outputs = [output])
+    return model
+
+def define_model():
+    model = Sequential()
+    model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same', input_shape=(128, 128,1)))
+    model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+    model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+    model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+    model.add(MaxPooling2D((2, 2)))
+    model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+    model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+    model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+    model.add(MaxPooling2D((2, 2)))
+    model.add(Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+    model.add(Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+    model.add(MaxPooling2D((2, 2)))
+    model.add(Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+    model.add(Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+    model.add(MaxPooling2D((2, 2)))
+    model.add(Flatten())
+    model.add(Dense(128, activation='relu', kernel_initializer='he_uniform'))
+    model.add(Dense(128, activation='relu', kernel_initializer='he_uniform'))
+    model.add(Dense(128, activation='relu', kernel_initializer='he_uniform'))
+    model.add(Dense(128, activation='relu', kernel_initializer='he_uniform'))
+    model.add(Dense(128, activation='relu', kernel_initializer='he_uniform'))
+    model.add(Dense(128, activation='relu', kernel_initializer='he_uniform'))
+    model.add(Dense(3, activation='softmax'))
+    # compile model
+    opt = Adam(lr=0.001)
+    model.compile(optimizer=opt, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
     return model
