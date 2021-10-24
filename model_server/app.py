@@ -41,11 +41,12 @@ def predict():
         file = np.array(img[0:16])
         output= model_ultron.predict(file)
         output = output[1][:,:,0]
-        output[output < 0.7] = 0
-        output[output  >= 0.7] = 1
+        output[output < 0.8] = 0
+        output[output  >= 0.8] = 1
         segments_fz = np.array(felzenszwalb(output, scale=3.0, sigma=0.95, min_size=600),dtype=np.uint8)
-        boundaries = find_boundaries(segments_fz, mode='outer').astype(np.uint8)
-        return json.dumps({'mask':boundaries}, cls=NumpyEncoder)
+        # boundaries = find_boundaries(segments_fz, mode='outer').astype(np.uint8)
+        # return json.dumps({'mask':boundaries}, cls=NumpyEncoder)
+        return json.dumps({'mask':output}, cls=NumpyEncoder)
     
 @app.route('/classify', methods=['POST'])
 def classify():

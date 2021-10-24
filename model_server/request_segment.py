@@ -10,13 +10,13 @@ from skimage.segmentation import felzenszwalb, slic, quickshift, watershed
 from skimage.segmentation import mark_boundaries
 from skimage.util import img_as_float
 # urllib.request.urlretrieve("https://i.imgur.com/RzdqHl9.png", "malignant.jpg")
-# resp = requests.post("http://localhost:5000/predict",
-#                      files={"file":open('assets/benign (103).png','rb')})
+resp = requests.post("http://localhost:5000/predict",
+                     files={"file":open('assets/benign (103).png','rb')})
 # resp = requests.post("http://localhost:5000/predict",
 #                      files={"file":open('malignant.jpg','rb')})
 
-resp = requests.post("https://breast-cancer-api.as.r.appspot.com/predict",
-                     files={"file":open('assets/benign (103).png','rb')})
+# resp = requests.post("https://breast-cancer-api.as.r.appspot.com/predict",
+#                      files={"file":open('assets/benign (103).png','rb')})
 # resp = requests.post("https://brain-tumor-segment-api.as.r.appspot.com/predict",
 #                      files={"file":open('local-filename.jpg','rb')})
 

@@ -23,7 +23,7 @@
     padding: 10px;
     width: fit-content;
     background-color: bisque;
-    height: 600px;
+    height: fit-content;
     margin: 2px;
    }
 .divimg{
@@ -31,7 +31,7 @@
     padding: 10px;
     width: fit-content;
     background-color: bisque;
-    height: 600px;
+    height: fit-content;
     margin:2px
 }
 .divgraph{
@@ -104,9 +104,145 @@
 }
 
 .divfooter{
-    border: 2px solid black;
+    border-top: 1px solid black;
     padding: 10px;
     width: auto;
-    background-color: rgb(129, 224, 224);
+    background-color: #e5bcc5;
+}
+
+.header{
+    border-bottom: 3px solid rgb(166, 140, 179);
+    padding: 10px;
+    width: auto;
+    color: #46363b;
+}
+
+.headerbuts{
+    padding: 10px;
+    width: auto;
+    color: #46363b;
+    font-size: 14px;
+    text-align: center;
+    width: 200px;
+    height:100%;
+}
+
+.headercol{
+    margin-left: auto; 
+    margin-right: 0;
+}
+
+.divHeader1{
+    background-color: rgb(255, 255, 255);
+    height:500px;
+    border-bottom: 1px solid black;
+}
+.big-awareness{
+    font-size: 40px;
+    font-weight: 700;
+    text-align: center;
+    padding: 20px;
+    margin-bottom: 50px;
+    margin-top:50px
+}
+
+.bigbox{
+    width: 600px;
+    align-content: center;
+    margin: auto;
+}
+.bigbox12{
+    margin:auto;
+    background-color: #ebe5e5;
+    height: 500px;
+}
+.headerrow1{
+    height: 100%;
+}
+
+.bigbozframe{
+    display: flex;
+    justify-content: center;
+}
+.big-awareness1{
+    font-size: 40px;
+    font-weight: 700;
+    text-align: center;
+    padding: 20px;
+    margin-bottom: 50px;
+    margin-top:5px
+}
+
+.annotationtool{
+    height:fit-content;
+    background-color: #a6d9da;
+    padding: 10px;
+    padding-left: 30px;
+}
+
+.graphout{
+    height:fit-content;
+    width:fit-content;
+    background-color: #ffffff;
+    border: 2px solid black;
+    padding: 10px;
+    min-height: 270px;
+    min-width: 270px;
     margin: 10px;
+}
+
+.graphout1{
+    height:fit-content;
+    width:fit-content;
+    background-color: #ffffff;
+    border: 2px solid black;
+    padding: 10px;
+    min-height: 600px;
+    min-width: 900px;
+}
+
+
+.graphout2{
+    height: 600px;
+    width:300px;
+    background-color: #ffffff;
+    border: 2px solid black;
+    padding: 10px;
+    min-height: 300px;
+    min-width: 300px;
+    
+}
+.bigbox2{
+    width: 700px;
+    align-content: center;
+    margin: auto; 
+}
+.bigbox1{
+    padding: 20px;
+    height: 500px;
+    background-color: peachpuff;
+}
+.navlink{
+    background-color: #e5bcc5;
+    border: #f7cad5;
+    padding: 10px;
+    font-size: 20px;
+    margin:5px;
+    color:#46363b
+}
+
+.logo{
+    margin-left: 100px;
+}
+.table{
+    margin:20px;
+    background-color: #e5bcc5;
+    width: 90%;
+}
+
+.classifys{
+    border: 1px solid black;
+    background-color: #a6d9da;
+    height:100px;
+    padding: 10px;
 }
